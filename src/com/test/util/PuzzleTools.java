@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Matrix;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 
 
@@ -92,7 +93,7 @@ public class PuzzleTools {
 		int[][] densityPuzzleFormworkAttrDataSet = allThreeDimensionPuzzleFormworkAttrDataSet[index];
 		for(int i = 0; i < densityPuzzleFormworkAttrDataSet.length; i++){
 			int index_13 = densityPuzzleFormworkAttrDataSet[i][13];
-			if(density != 1 && index_13 == -1){//每个小图的属相中索引下标为16，来记录是否需要转化为当前屏幕下的像素， -1：需要转化
+			if(density != 1 && index_13 == -1){//每个小图的属相中索引下标为13，来记录是否需要转化为当前屏幕下的像素， -1：需要转化
 				for(int j = 0; j < 6; j++){
 					densityPuzzleFormworkAttrDataSet[i][j] = (int)(densityPuzzleFormworkAttrDataSet[i][j] * density);
 				}
@@ -119,10 +120,10 @@ public class PuzzleTools {
 			//2.获得三维模型图片属相中，每个小图的属性
 			puzzImageAttrDataSet = oneThreeFormworkAttrDataSet[i];
 			//3.从指定的文件路径或者resid生成bitmap,这里从puzzleBitmapResIdArray获得图片的id。也可以使用其他方式进行取得，例如Uri = content:///   或者  file:/// 
-			Bitmap  sourceBitmap = loadSourceImage(context, puzzleBitmapResIdArray[i], 720, 1280);
+			Bitmap  sourceBitmap = loadSourceImage(context, puzzleBitmapResIdArray[i], 1280, 1280);
 			//4.根据上面生成的图片和三维模型图中的小图属性，进行图片缩放。生成能够进行拼图的资源
 			bitmap = scaleImage(sourceBitmap, puzzImageAttrDataSet);
-			puzzleBitmapArray[i] = bitmap;
+			puzzleBitmapArray[i] = sourceBitmap;
 		}
 	}
 	
@@ -199,10 +200,45 @@ public class PuzzleTools {
 			options.inJustDecodeBounds = false;
 			srcBitmap = BitmapFactory.decodeResource(context.getResources(), resid, options);
 			
+//			srcBitmap = getImageThumbnail(context, resid, 800);
+			
 			return srcBitmap;
 	}
 	}
 	
+	
+	public static Bitmap getImageThumbnail(Context context, int  resid, int minLen) {  
+	    int width = 0;
+	    int height = 0;
+	    Bitmap bitmap = null;  
+	    BitmapFactory.Options options = new BitmapFactory.Options();
+	     
+	    options.inJustDecodeBounds = true;  
+	    bitmap = BitmapFactory.decodeResource(context.getResources(),resid, options);  
+	    options.inJustDecodeBounds = false; 
+	     
+	    if(options.outHeight > options.outWidth) {
+	        width = minLen;
+	        options.inSampleSize = options.outWidth / width;
+	        height = options.outHeight * width / options.outWidth;
+	        options.outHeight = height;
+	        options.outWidth = width;
+	    }
+	    else {
+	        height = minLen;
+	        options.inSampleSize = options.outHeight / height;
+	        width = options.outWidth * height / options.outHeight;
+	        options.outWidth = width;
+	        options.outHeight = height;
+	    }
+	 
+	    options.inPreferredConfig = Bitmap.Config.ARGB_4444;
+	     
+	    bitmap = BitmapFactory.decodeResource(context.getResources(),resid, options);  
+	    bitmap = ThumbnailUtils.extractThumbnail(bitmap, width, height,  
+	            ThumbnailUtils.OPTIONS_RECYCLE_INPUT);  
+	    return bitmap;  
+	}
 	
 	
 }

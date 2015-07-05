@@ -69,7 +69,6 @@ public class MainActivity extends Activity{
         RelativeLayout out = (RelativeLayout) this.findViewById(R.id.allChildFather);
         //图片集合的父类布局   
          father = new RelativeLayout(this);
-        //计算父类布局的layout_height = （屏幕的高度 - 状态栏的高度 - 标题栏的高度 - 底部视图的高度） >> 1
         LayoutParams params =  new LayoutParams((int)(250 * density), (int)(300 * density));
         
         father.setLayoutParams(params);
